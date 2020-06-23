@@ -15,5 +15,4 @@ de como hablamos los panameños.
     necesarios para el entrenamiento del modelo.
 
 ## TODO: 
- - [x]  Definir si es necesario otra separacion para 
-        la parte de entrenar el modelo.
+- [ ] Integracion de Cloud con las demas secciones. 
