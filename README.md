@@ -19,3 +19,4 @@ de como hablamos los panameños.
 ## TODO: 
 - [ ] Integracion de Cloud con las demas secciones. 
 - [ ] Definir el nombre final de la seccion de ModelTrainer
+- [ ] Llenar el requirements.txt
