@@ -1,2 +1,19 @@
 # PanamanianSpanishModel
-In this project we extract data to train a Panamanian Spanish NLP model. 
+Este proyecto se encatga de hacer la extraccion de textos 
+para entrenar un modelo de NLP que funciones para 
+textos Panameños tomando en cuenta las diferencias que 
+existen entre el español general y las perculiaridades 
+de como hablamos los panameños.
+
+## Secciones
+*   **pdfScraper**: Se encarga de extraer los textos para ser
+    almacenados en nuestro storage de Google Cloud Platform.
+*   **CloudManager**: En esta parte se encuentran todos los 
+    archivos para poder hacer un manejo correcto de nuestro storage en Google Cloud Platform.
+*   **textExtractor**: Esta seccion se encarga de extraer los
+    pdfs guardados en el storage y extraer los textos 
+    necesarios para el entrenamiento del modelo.
+
+## TODO: 
+ - [x]  Definir si es necesario otra separacion para 
+        la parte de entrenar el modelo.
