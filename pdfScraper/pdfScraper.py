@@ -4,7 +4,6 @@ import time
 from bs4 import BeautifulSoup 
 
 import sys
-sys.path.insert(0,'/usr/lib/chromium-browser/chromedriver')
 from selenium import webdriver
 
 from selenium.webdriver.support.ui import WebDriverWait
@@ -20,16 +19,24 @@ from CloudManager.cloudManager import StorageManager
 
 class Scraper():
 
-    def __init__(self):
+    def __init__(self, local=False):
         '''
-            IMPORTANT: Instalar apt install chromium-chromedriver
+            IMPORTANT: Instalar apt install chromium-chromedriver para VM
         '''
-        self.driver = self.__defineDriver() 
+
         self.PARSER = 'lxml'
         self.__tmp_dir = 'pdfScraper/tmp'
         self.storage_manager = StorageManager('pdfs_tesis')
+        
+        if local:
+            self.driver = self.__defineDriver(driver_path='pdfScraper/chromedriver.exe') 
+        else: 
+            sys.path.insert(0,'/usr/lib/chromium-browser/chromedriver')
+            self.driver = self.__defineDriver() 
 
-    def __defineDriver(self, driver_path):
+        
+
+    def __defineDriver(self, driver_path='chromedriver'):
         """
         This function creates the driver that Selenium uses
         to simulate the browser. 
@@ -37,8 +44,9 @@ class Scraper():
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--incognito')
         chrome_options.add_argument('--disable-dev-shm-usage')
-        driver = webdriver.Chrome('chromedriver',chrome_options=chrome_options)
+        driver = webdriver.Chrome(driver_path,chrome_options=chrome_options)
         return driver
 
     def __getSoup(self, url):
@@ -156,6 +164,7 @@ class Scraper():
 
 
 if __name__ == '__main__':
-    scraper = Scraper()
+    scraper = Scraper() #Para correr en Cloud VM
+    #scraper = Scraper(local=True) #Para correr en local
     scraper.extract(url= 'https://www.asamblea.gob.pa/actas-de-comisiones', actas='comision', one_file=True)
     scraper.driver.close()
