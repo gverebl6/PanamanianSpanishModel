@@ -1,4 +1,5 @@
 # PanamanianSpanishModel
+
 Este proyecto se encatga de hacer la extraccion de textos 
 para entrenar un modelo de NLP que funciones para 
 textos Panameños tomando en cuenta las diferencias que 
@@ -16,8 +17,10 @@ de como hablamos los panameños.
 *   **ModelTrainer (temporal)**: Parte encargada de la de tomar
     los textos extraidos para hacer el entrenamiento de modelo.
 
-#Execucion
-> Para ejecutar pdfScrapper: `python -m pdfScraper.pdfScraper`
+# Execucion
+```
+Para ejecutar pdfScrapper: `python -m pdfScraper.pdfScraper`
+```
 
 ## TODO: 
 - [x] Integracion de Cloud con pdfScraper. 
