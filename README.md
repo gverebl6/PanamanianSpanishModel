@@ -20,6 +20,7 @@ de como hablamos los panameños.
 > Para ejecutar pdfScrapper: `python -m pdfScraper.pdfScraper`
 
 ## TODO: 
-- [ ] Integracion de Cloud con las demas secciones. 
+- [x] Integracion de Cloud con pdfScraper. 
+- [ ] Integracion de Cloud con textExtractor. 
 - [ ] Definir el nombre final de la seccion de ModelTrainer
 - [ ] Llenar el requirements.txt
