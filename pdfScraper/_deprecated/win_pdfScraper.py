@@ -1,10 +1,16 @@
+"""
+Deprecated file: Este archivo es para hacer el scrapping de manera local. 
+El nuevo archivo se llama pdfScraper.py y no necesita usar el chromedriver.exe
+que se encuentra en la carpeta
+
+
+Si lo usaras saca ambos archivos del directorio _deprecated par correr sin problemas
+"""
+
 import os
 import requests
 import time
 from bs4 import BeautifulSoup 
-
-import sys
-sys.path.insert(0,'/usr/lib/chromium-browser/chromedriver')
 from selenium import webdriver
 
 from selenium.webdriver.support.ui import WebDriverWait
@@ -20,11 +26,11 @@ from CloudManager.cloudManager import StorageManager
 
 class Scraper():
 
-    def __init__(self):
+    def __init__(self, driver_exe_path):
         '''
-            IMPORTANT: Instalar apt install chromium-chromedriver
+            driver_exe_path: Path to the webdriver.exe
         '''
-        self.driver = self.__defineDriver() 
+        self.driver = self.__defineDriver(driver_exe_path) 
         self.PARSER = 'lxml'
         self.__tmp_dir = 'pdfScraper/tmp'
         self.storage_manager = StorageManager('pdfs_tesis')
@@ -34,11 +40,9 @@ class Scraper():
         This function creates the driver that Selenium uses
         to simulate the browser. 
         """
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        driver = webdriver.Chrome('chromedriver',chrome_options=chrome_options)
+        options = webdriver.ChromeOptions()
+        options.add_argument('--incognito')
+        driver = webdriver.Chrome(executable_path=driver_path, options=options)
         return driver
 
     def __getSoup(self, url):
@@ -156,6 +160,6 @@ class Scraper():
 
 
 if __name__ == '__main__':
-    scraper = Scraper()
+    scraper = Scraper('pdfScraper/chromedriver.exe')
     scraper.extract(url= 'https://www.asamblea.gob.pa/actas-de-comisiones', actas='comision', one_file=True)
     scraper.driver.close()

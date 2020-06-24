@@ -19,11 +19,21 @@ de como hablamos los panameños.
 
 # Execucion
 ```
-Para ejecutar pdfScrapper: `python -m pdfScraper.pdfScraper`
+Para ejecutar pdfScrapper: 
 ```
+`python -m pdfScraper.pdfScraper`
+
+# Requisitos de instalacion previo al Scrapper: 
+Para poder usar Selenium en una maquina virtual sera necesario instalar el chrome driver
+en la maquina con el comando: 
+`apt install chromium-chromedriver`
+Opcional puede ser necesario tener que hacer despues: 
+`cp /usr/lib/chromium-browser/chromedriver /usr/bin`
+
 
 ## TODO: 
 - [x] Integracion de Cloud con pdfScraper. 
 - [ ] Integracion de Cloud con textExtractor. 
 - [ ] Definir el nombre final de la seccion de ModelTrainer
 - [ ] Llenar el requirements.txt
+
