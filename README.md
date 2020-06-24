@@ -16,6 +16,9 @@ de como hablamos los panameños.
 *   **ModelTrainer (temporal)**: Parte encargada de la de tomar
     los textos extraidos para hacer el entrenamiento de modelo.
 
+#Execucion
+> Para ejecutar pdfScrapper: `python -m pdfScraper.pdfScraper`
+
 ## TODO: 
 - [ ] Integracion de Cloud con las demas secciones. 
 - [ ] Definir el nombre final de la seccion de ModelTrainer
