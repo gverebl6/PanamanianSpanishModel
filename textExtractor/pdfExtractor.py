@@ -15,12 +15,11 @@ def extractingData(pdfsNames,pdfs_path,txts_path):
         if len(pdf_reader.pages) > 5:
             txt_File = open(txts_path+os.path.splitext(pdf_name)[0]+".txt","w+",encoding='utf-8') 
             for page in pdf_reader.pages:
-                if page.page_number != len(pdf_reader.pages) or page.page_number != 1 or page.page_number != 2:
-                    print(page.page_number)
+                if (page.page_number != len(pdf_reader.pages)) and (page.page_number != 1) and (page.page_number != 2):
                     page=page.crop((1,50,612,715)) #Delete the footer and page numbers. 
                     fullText=fullText+page.extract_text()
-                
-            final_sentences=re.findall(r'(?:\—|\-)[A-Z\sÑ\.\,ÁÉÍÓÚa.i]*([A-Z\sÑ\.\,ÁÉÍÓÚ][a-zA-Z\s\.\…áéíóúüÁÉÍÓÚ\,\¿\?ñÑ0-9\'\"\“\”\:\;\-\№\(\)\º\°\–\‘\¡\!\%\/]*)',fullText)  
+            final_sentences=re.sub(r'(\–|\-)[A-Z]',"—",fullText)
+            final_sentences=re.findall(r'(?:\—|\-)(?:[A-Z\sÑ\.\,ÁÉÍÓÚ]|a\.i\.)*([A-Z\sÑ\.\,ÁÉÍÓÚ][A-Za-z\s\.\…áéíóúüÁÉÍÓÚ\,\¿\?ñÑ0-9\'\"\“\”\:\;\№\(\)\º\°\–\-a-z\‘\¡\!\%\/\&]*)',final_sentences)  
             for sentence in final_sentences:
                 txt_File.write(sentence)
             txt_File.close()
