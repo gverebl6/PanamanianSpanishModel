@@ -15,8 +15,12 @@ def extractingData(pdfsNames,pdfs_path,txts_path):
         if len(pdf_reader.pages) > 5:
             txt_File = open(txts_path+os.path.splitext(pdf_name)[0]+".txt","w+",encoding='utf-8') 
             for page in pdf_reader.pages:
-                if (page.page_number != len(pdf_reader.pages)) and (page.page_number != 1) and (page.page_number != 2):
-                    page=page.crop((1,50,612,715)) #Delete the footer and page numbers. 
+                if (page.page_number != len(pdf_reader.pages)) and (page.page_number != 1) and (page.page_number != 2): 
+                    print("Page Number: "+str(page.page_number))
+                    print("Page Width "+str(page.width))
+                    print("Page Height "+str(page.height))
+                    page=page.crop((0,50,0.999*float(page.width),715),relative=True) #Delete the footer and page numbers. 
+                    #page=page.within_bbox((1,50,612,715),relative=True)
                     fullText=fullText+page.extract_text()
             final_sentences=re.sub(r'(\–|\-)[A-Z]',"—",fullText)
             final_sentences=re.findall(r'(?:\—|\-)(?:[A-Z\sÑ\.\,ÁÉÍÓÚ]|a\.i\.)*([A-Z\sÑ\.\,ÁÉÍÓÚ][A-Za-z\s\.\…áéíóúüÁÉÍÓÚ\,\¿\?ñÑ0-9\'\"\“\”\:\;\№\(\)\º\°\–\-a-z\‘\¡\!\%\/\&]*)',final_sentences)  
