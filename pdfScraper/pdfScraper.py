@@ -15,7 +15,10 @@ from selenium.common.exceptions import TimeoutException
 from CloudManager.cloudManager import StorageManager
 
  
-    #Usamos esta constante porque en Linux puede que sea necesario hacer el cambio
+#System params
+URL = sys.argv[1]
+ACTAS = sys.argv[2]
+ONE_FILE = sys.argv[3]
 
 class Scraper():
 
@@ -153,7 +156,7 @@ class Scraper():
                 pdf.write(raw_pdf.content)
                 
             #Codigo para subir en storage
-            self.storage_manager.upload_object(file_path, f'Acta{file}')
+            self.storage_manager.upload_object(file_path, f'Acta-{actas}-{year}-{file}')
 
             #timeouut de 10 min entre descargas de archivos.
             time.sleep(600)  
@@ -164,7 +167,12 @@ class Scraper():
 
 
 if __name__ == '__main__':
+    
     scraper = Scraper() #Para correr en Cloud VM
-    #scraper = Scraper(local=True) #Para correr en local
-    scraper.extract(url= 'https://www.asamblea.gob.pa/actas-de-comisiones', actas='comision', one_file=True)
+    scraper.extract(url=URL , actas=ACTAS, one_file=ONE_FILE)
     scraper.driver.close()
+    
+    #print(f'url: {URL}\nactas: {ACTAS}\none-file: {ONE_FILE}')
+    #scraper.extract(url= 'https://www.asamblea.gob.pa/actas-de-comisiones', actas='comision', one_file=True)
+    #scraper = Scraper(local=True) #Para correr en local
+
