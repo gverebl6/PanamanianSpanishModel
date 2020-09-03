@@ -7,6 +7,8 @@ Para ejecutar se utiliza el script "pdfExtractor.py" seguido de la ruta donde se
 
     pdfExtractor.py test_DataInput test_DataOutput
 
+    python -m textExtractor.pdfExtractor .\textExtractor\test\test_in\ .\textExtractor\test\test_out\    
+
 # Checklist Documentos por año. (Actas de comisiones)
 
  - [x] 2015

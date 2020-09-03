@@ -144,3 +144,5 @@ proy_cred.json
 textExtractor/test_DataInput/*
 textExtractor/test_DataNOTCleaned/*
 textExtractor/test_DataOutput/*
+
+textExtractor/test
