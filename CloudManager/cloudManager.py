@@ -83,7 +83,7 @@ class StorageManager():
             file_path: Path of the file to be updated
             blob_name: name of the blob on storage to be updated
         """
-        upload_object(file_path, blob_name, extracted=True )
+        self.upload_object(file_path, blob_name, extracted=True )
 
     def download_object(self, source_blob_name, destination_file_path):
         ''' Downloads a blob from the bucket.
