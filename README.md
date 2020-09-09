@@ -21,7 +21,7 @@ de como hablamos los panameños.
 ```
 Para ejecutar pdfScrapper: 
 ```
-`python -m pdfScraper.pdfScraper`
+`python -m pdfScraper.pdfScraper comision | pleno`
 
 # Requisitos de instalacion previo al Scrapper: 
 Para poder usar Selenium en una maquina virtual sera necesario instalar el chrome driver
