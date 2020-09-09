@@ -2,6 +2,7 @@ import sys, re, pdfplumber
 import os
 
 from CloudManager.cloudManager import StorageManager
+from Logger.logger import create_logger
 
 def get_new_docs():
     docs = pdf_storage.get_blobs()
@@ -52,6 +53,7 @@ def extractingData(pdfsNames,pdfs_path,txts_path):
 
 if __name__ == '__main__':
 
+    logger = create_logger('text-extractor')
     #Extraction process
     #Process variables
     tmp_pdfs = sys.argv[1]  #Donde se guardaran los pdfs temporalmente
@@ -78,13 +80,16 @@ if __name__ == '__main__':
         
         #Upload txt
         if files_extracted:
-            print(files_extracted[0])
             new_obj_name = change_obj_extention(doc.name)
             #....Mejorable si se hace por batches....
             txt_storage.upload_object(
                 source_file_path=files_extracted[0],
                 destination_blob_name=new_obj_name
             )
+            logger.info(f'File {files_extracted[0]} extraction completed')
+        else: 
+            logger.info(f'File {doc.name} not extracted')
+            
 
         #Update pdf
         # pdf_storage.update_blob_extracted(
@@ -95,6 +100,7 @@ if __name__ == '__main__':
         #Eliminar lo de temp
 
         delete_tmp_files(tmp_pdfs, tmp_txt)
+
 
     # # Nueva forma
     # 1. get all blobs(for performance purpouse) \\\\

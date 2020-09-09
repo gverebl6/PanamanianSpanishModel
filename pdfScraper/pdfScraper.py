@@ -13,6 +13,7 @@ from selenium.common.exceptions import TimeoutException
 
 #IMPORT DEL CLOUD MANAGE
 from CloudManager.cloudManager import StorageManager
+from Logger.logger import create_logger
 
  
 #System params
@@ -26,7 +27,7 @@ class Scraper():
         '''
             IMPORTANT: Instalar apt install chromium-chromedriver para VM
         '''
-
+        self._logger = create_logger('pdfScraper-logger')
         self.PARSER = 'lxml'
         self.__tmp_dir = 'pdfScraper/tmp'
         self.storage_manager = StorageManager('pdfs_tesis')
@@ -157,7 +158,7 @@ class Scraper():
                 
             #Codigo para subir en storage
             self.storage_manager.upload_object(file_path, f'Acta-{actas}-{year}-{file}')
-
+            self._logger.info(f'File {file_path} extraction completed')
             #timeouut de 10 min entre descargas de archivos.
             time.sleep(600)  
 
