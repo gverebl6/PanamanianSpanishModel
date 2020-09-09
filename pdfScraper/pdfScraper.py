@@ -16,53 +16,27 @@ from CloudManager.cloudManager import StorageManager
 from Logger.logger import create_logger
 
  
-#System params
-URL = sys.argv[1]
-ACTAS = sys.argv[2]
-ONE_FILE = sys.argv[3]
+ACTAS = sys.argv[1]
 
 class Scraper():
-
-    def __init__(self, local=False):
-        '''
-            IMPORTANT: Instalar apt install chromium-chromedriver para VM
-        '''
-        self._logger = create_logger('pdfScraper-logger')
-        self.PARSER = 'lxml'
+    def __init__(self):
+        
+        self._logger = create_logger('pdfScraper_logger')
+        self._storage_manager = StorageManager('pdfs_tesis')
+        self.__PARSER = 'lxml'
         self.__tmp_dir = 'pdfScraper/tmp'
-        self.storage_manager = StorageManager('pdfs_tesis')
+        self.__base_path = 'https://www.asamblea.gob.pa/'
         
-        if local:
-            self.driver = self.__defineDriver(driver_path='pdfScraper/chromedriver.exe') 
-        else: 
-            sys.path.insert(0,'/usr/lib/chromium-browser/chromedriver')
-            self.driver = self.__defineDriver() 
-
-        
-
-    def __defineDriver(self, driver_path='chromedriver'):
-        """
-        This function creates the driver that Selenium uses
-        to simulate the browser. 
-        """
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--incognito')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        driver = webdriver.Chrome(driver_path,chrome_options=chrome_options)
-        return driver
-
     def __getSoup(self, url):
         """
         Function to get the soup from an url
         """
         r = requests.get(url)
         if r.status_code == 200: 
-            return BeautifulSoup(r.text, self.PARSER)
+            return BeautifulSoup(r.text, self.__PARSER)
         else:
             return None
-
+    
     def __DinamicWait(self, xpath, timeout=10):
         """
         Creates a Dinamic wait used to wait for a page to load.
@@ -72,50 +46,6 @@ class Scraper():
             time.sleep(2)
         except:
             print('La pagina tardo demasiado....')
-    
-    def __extractActasPleno(self, url, pages):
-        """
-        Extracts files from 'Actas del Pleno'
-        """
-        file_names = []
-        self.driver.get(url) #Le hacemos GET a la pagina con la lista
-        
-        for i in range(pages):
-            self.__DinamicWait('//div[@id="titulo"]', timeout=25)
-            files = self.driver.find_elements_by_xpath('//div[@id="titulo"]')
-            for file in files:
-                file_names.append(file.get_attribute('innerHTML'))
-            
-            next_btn = self.driver.find_element_by_xpath('//div[@class="next"]')
-            next_btn.click()
-        
-        return file_names
-
-    def __extractActasComisiones(self, url, pages):
-        """
-        Extracts files from 'Actas de Comisiones'
-        """
-        file_names = []
-        self.driver.get(url) #Le hacemos GET a la pagina con la lista
-        
-        #El orden en comisiones es diferente por lo que necesitamos
-        #irnos al ultimo y echar para atras para ir de los mas recientes 
-        #a los mas viejos.
-        self.__DinamicWait('//div[@id="titulo"]', timeout=25)
-        last_btn = self.driver.find_element_by_xpath('//div[@class="last"]')
-        last_btn.click()
-
-        for i in range(pages+1):
-            self.__DinamicWait('//div[@id="titulo"]', timeout=25)
-
-            files = self.driver.find_elements_by_xpath('//div[@id="titulo"]')
-            for file in files:
-                file_names.append(file.get_attribute('innerHTML'))
-            
-            next_btn = self.driver.find_element_by_xpath('//div[@class="prev"]')
-            next_btn.click()
-        
-        return file_names
 
     def __deletePdfs(self):
         """
@@ -124,56 +54,83 @@ class Scraper():
         """
         for file in os.listdir(self.__tmp_dir):
             os.remove(f'{self.__tmp_dir}\\{file}')
+    
+    def _get_actas_path(self, tipo_acta):
+        """
+            Method that returns the rest of the path based on the type of acta
+        """
+        url_base = self.__base_path
+        #Get path from tipo
+        dropdowns = self.__getSoup(url_base)\
+            .find('div', attrs={'class': 'region-main-navigation'})\
+            .find_all('li')
+
+        for item in dropdowns:
+            if item.a.get('href') == '' and item.a.get_text() == 'LABOR LEGISLATIVA':
+                menu = item
+        
+        #print(menu)
+        if tipo_acta == 'comision':
+            path = menu.find('a', text='Actas de Comisiones').get('href')
+        else:
+            path = menu.find('a', text='Actas del Pleno').get('href')
+
+        return path.split('/')[2:]
+
+    def extract(self, tipo_acta):
+        '''
+            Does the extraction of the documents. 
+            Recievers tipo_acta with options:
+                - comision
+                - pleno
+        '''
+        #Get path depending on type
+        path = self._get_actas_path(tipo_acta)
+        url_acta = self.__base_path + path[0] + '/' + path[1]
+        
+        tables = self.__getSoup(url_acta)\
+            .find('div', attrs={'class' : 'field--name-field-description'})\
+            .find_all('table')
+        file_paths = []
+        for table in tables:
+            for row in table.find_all('tr'):
+                try:
+                    file_paths.append(row.a.get('href'))   
+                except AttributeError:
+                    continue
+
+        for path in file_paths:
+            file_url = self.__base_path + path[3:]
+            file = file_url.split('/')[-1]
+            tmp_file = f'{self.__tmp_dir}\\{file}'
+            raw_pdf = requests.get(file_url)
+            
+            with open(tmp_file, 'wb') as pdf:
+                pdf.write(raw_pdf.content)
+            
+            #Codigo para subir en storage
+            fecha = file.split('_')[:3]
+            storage_object = f'acta_{tipo_acta}_{fecha[0]}_{fecha[1]}_{fecha[2]}.pdf' 
+            self._storage_manager.upload_object(tmp_file, storage_object)
+            self._logger.info(f'File {storage_object} extraction completed')
+            self.__deletePdfs()  
+            # timeouut de 10 min entre descargas de archivos.
+            time.sleep(600) 
+            break
         
 
 
-    def extract(self, url, actas='pleno', pages=1, one_file=False):
-        table_url = self.__getSoup(url).find('iframe').get('src')
-        if actas=='pleno': 
-            file_names = self.__extractActasPleno(table_url, pages)
-        else:
-            file_names = self.__extractActasComisiones(table_url, pages)
-
-        #This is used for the option to only download one
-        if one_file:
-            last = 1
-        else:
-            last = len(file_names)
+        
 
 
-        for file in file_names[:last]:
-            #Uttilizamos el nombre del archivo para generar el url
-            file = file[:-4] + file[-4:].lower()
-            year = file[:4]
-            decade = int(year)-(int(year) % 10) 
-            if actas=='pleno':
-                url_pdf = f'https://www.asamblea.gob.pa/APPS/LEGISPAN/PDF_ACTAS/{decade}_ACTAS/{year}_ACTAS/{year}_ACTAS_PLENO/{file}'
-            else:
-                url_pdf = f'https://www.asamblea.gob.pa/APPS/LEGISPAN/PDF_ACTAS/{decade}_ACTAS/{year}_ACTAS/{year}_ACTAS_COMISION/{year}_COMISION/{file}'
-
-            raw_pdf = requests.get(url_pdf)
-            file_path = f'{self.__tmp_dir}\\{file}'
-            with open(file_path, 'wb') as pdf:
-                pdf.write(raw_pdf.content)
-                
-            #Codigo para subir en storage
-            self.storage_manager.upload_object(file_path, f'Acta-{actas}-{year}-{file}')
-            self._logger.info(f'File {file_path} extraction completed')
-            #timeouut de 10 min entre descargas de archivos.
-            time.sleep(600)  
-
-        self.__deletePdfs()  
-
-                   
 
 
 if __name__ == '__main__':
     
+    if ACTAS not in ['comision', 'pleno']:
+        print('Tipo de acta invalido....')
+        exit()
+
     scraper = Scraper() #Para correr en Cloud VM
-    scraper.extract(url=URL , actas=ACTAS, one_file=ONE_FILE)
-    scraper.driver.close()
-    
-    #print(f'url: {URL}\nactas: {ACTAS}\none-file: {ONE_FILE}')
-    #scraper.extract(url= 'https://www.asamblea.gob.pa/actas-de-comisiones', actas='comision', one_file=True)
-    #scraper = Scraper(local=True) #Para correr en local
+    scraper.extract(tipo_acta=ACTAS)
 
