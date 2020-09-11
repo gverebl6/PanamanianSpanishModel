@@ -36,7 +36,7 @@ def extractingData(pdfsNames,pdfs_path,txts_path):
                 txt_File = open(file_name,"w+",encoding='utf-8') 
                 for page in pdf_reader.pages:
                     if (page.page_number != len(pdf_reader.pages)) and (page.page_number != 1) and (page.page_number != 2):
-                        page=page.crop((1,50,612,715)) #Delete the footer and page numbers. 
+                        page=page.crop((0,50,0.999*float(page.width),715),relative=True) #Delete the footer and page numbers. 
                         fullText=fullText+page.extract_text()
                 final_sentences=re.sub(r'(\–|\-)[A-Z]',"—",fullText)
                 final_sentences=re.findall(r'(?:\—|\-)(?:[A-Z\sÑ\.\,ÁÉÍÓÚ]|a\.i\.)*([A-Z\sÑ\.\,ÁÉÍÓÚ][A-Za-z\s\.\…áéíóúüÁÉÍÓÚ\,\¿\?ñÑ0-9\'\"\“\”\:\;\№\(\)\º\°\–\-a-z\‘\¡\!\%\/\&]*)',final_sentences)  
@@ -92,10 +92,10 @@ if __name__ == '__main__':
             
 
         #Update pdf
-        # pdf_storage.update_blob_extracted(
-        #     blob_name=doc.name,
-        #     file_path=f'{tmp_pdfs}{doc.name}'
-        # )
+        pdf_storage.update_blob_extracted(
+            blob_name=doc.name,
+            file_path=f'{tmp_pdfs}{doc.name}'
+        )
 
         #Eliminar lo de temp
 
