@@ -4,12 +4,12 @@ import time
 from bs4 import BeautifulSoup 
 
 import sys
-from selenium import webdriver
+# from selenium import webdriver
 
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support import expected_conditions as EC
+# from selenium.webdriver.common.by import By
+# from selenium.common.exceptions import TimeoutException
 
 #IMPORT DEL CLOUD MANAGE
 from CloudManager.cloudManager import StorageManager
@@ -37,15 +37,15 @@ class Scraper():
         else:
             return None
     
-    def __DinamicWait(self, xpath, timeout=10):
-        """
-        Creates a Dinamic wait used to wait for a page to load.
-        """
-        try:
-            res = WebDriverWait(self.driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
-            time.sleep(2)
-        except:
-            print('La pagina tardo demasiado....')
+    # def __DinamicWait(self, xpath, timeout=10):
+    #     """
+    #     Creates a Dinamic wait used to wait for a page to load.
+    #     """
+    #     try:
+    #         res = WebDriverWait(self.driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
+    #         time.sleep(2)
+    #     except:
+    #         print('La pagina tardo demasiado....')
 
     def __deletePdfs(self):
         """
@@ -53,7 +53,7 @@ class Scraper():
         once all are uploaded to the storage. 
         """
         for file in os.listdir(self.__tmp_dir):
-            os.remove(f'{self.__tmp_dir}\\{file}')
+            os.remove(f'{self.__tmp_dir}/{file}')
     
     def _get_actas_path(self, tipo_acta):
         """
@@ -74,8 +74,7 @@ class Scraper():
             path = menu.find('a', text='Actas de Comisiones').get('href')
         else:
             path = menu.find('a', text='Actas del Pleno').get('href')
-
-        return path.split('/')[2:]
+        return path
 
     def extract(self, tipo_acta):
         '''
@@ -86,7 +85,7 @@ class Scraper():
         '''
         #Get path depending on type
         path = self._get_actas_path(tipo_acta)
-        url_acta = self.__base_path + path[0] + '/' + path[1]
+        url_acta = self.__base_path + path
         
         tables = self.__getSoup(url_acta)\
             .find('div', attrs={'class' : 'field--name-field-description'})\
@@ -99,29 +98,26 @@ class Scraper():
                 except AttributeError:
                     continue
 
+
         for path in file_paths:
             file_url = self.__base_path + path[3:]
             file = file_url.split('/')[-1]
-            tmp_file = f'{self.__tmp_dir}\\{file}'
-            raw_pdf = requests.get(file_url)
-            
-            with open(tmp_file, 'wb') as pdf:
-                pdf.write(raw_pdf.content)
-            
-            #Codigo para subir en storage
-            fecha = file.split('_')[:3]
-            storage_object = f'acta_{tipo_acta}_{fecha[0]}_{fecha[1]}_{fecha[2]}.pdf' 
-            self._storage_manager.upload_object(tmp_file, storage_object)
-            self._logger.info(f'File {storage_object} extraction completed')
-            self.__deletePdfs()  
-            # timeouut de 10 min entre descargas de archivos.
-            time.sleep(600) 
-            break
-        
-
-
-        
-
+            tmp_file = f'{self.__tmp_dir}/{file}'
+            try: 
+                raw_pdf = requests.get(file_url)
+                with open(tmp_file, 'wb') as pdf:
+                    pdf.write(raw_pdf.content)
+                
+                #Codigo para subir en storage
+                fecha = file.split('_')[:3]
+                storage_object = f'acta_{tipo_acta}_{file.lower()}' 
+                self._storage_manager.upload_object(tmp_file, storage_object)
+                self._logger.info(f'File {storage_object} extraction completed')
+                self.__deletePdfs()  
+                # timeouut de 10 min entre descargas de archivos.
+            except:
+                print('No se pudo descargar el documento...')
+            time.sleep(30) 
 
 
 

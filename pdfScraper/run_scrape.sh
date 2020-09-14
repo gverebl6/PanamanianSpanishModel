@@ -3,7 +3,7 @@ echo "Initializing extraction..."
 cd ~/PanamanianSpanishModel
 
 #Sujeto a cambio por tarea 8
-export GOOGLE_APPLICATION_CREDENTIALS="{credential_path}" 
+export GOOGLE_APPLICATION_CREDENTIALS="CloudManager/pr_cred.json"
 
 
 python -m  pdfScraper.pdfScraper comision
