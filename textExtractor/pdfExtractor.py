@@ -76,8 +76,12 @@ if __name__ == '__main__':
         )
 
         #Extraction
-        pdfsNames=getPDFNames(tmp_pdfs)
-        files_extracted = extractingData(pdfsNames,tmp_pdfs,tmp_txt)
+        try: 
+            pdfsNames=getPDFNames(tmp_pdfs)
+            files_extracted = extractingData(pdfsNames,tmp_pdfs,tmp_txt)
+        except:
+            print(f'ERROR: File {pdfsNames[0]} unabled to download...')
+            continue
         
         #Upload txt
         if files_extracted:
