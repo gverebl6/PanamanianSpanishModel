@@ -8,4 +8,5 @@ export GOOGLE_APPLICATION_CREDENTIALS="{credential_path}"
 
 python -m textExtractor.pdfExtractor\
     ./textExtractor/tmp/pdf/\
-    ./textExtractor/tmp/txt/   
+    ./textExtractor/tmp/txt/\ 
+    True

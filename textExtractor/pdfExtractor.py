@@ -58,6 +58,7 @@ if __name__ == '__main__':
     #Process variables
     tmp_pdfs = sys.argv[1]  #Donde se guardaran los pdfs temporalmente
     tmp_txt = sys.argv[2]   #Donde se guardaran los txt temporalmente
+    do_update = int(sys.argv[3]) #Whether or not to extract a file
 
     #Instanciar los storage managers
     pdf_storage = StorageManager('pdfs_tesis')
@@ -92,10 +93,11 @@ if __name__ == '__main__':
             
 
         #Update pdf
-        pdf_storage.update_blob_extracted(
-            blob_name=doc.name,
-            file_path=f'{tmp_pdfs}{doc.name}'
-        )
+        if do_update:
+            pdf_storage.update_blob_extracted(
+                blob_name=doc.name,
+                file_path=f'{tmp_pdfs}{doc.name}'
+            )
 
         #Eliminar lo de temp
 
