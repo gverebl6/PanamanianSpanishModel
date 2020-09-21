@@ -15,7 +15,7 @@ def change_obj_extention(doc, extention='txt'):
 def delete_tmp_files(*tmp_directories):
     for directory in tmp_directories:
         for file in os.listdir(directory):
-            os.remove(f'{directory}\\{file}')
+            os.remove(f'{directory}/{file}')
 
 def getPDFNames(path):
     names=[]
@@ -81,6 +81,7 @@ if __name__ == '__main__':
             files_extracted = extractingData(pdfsNames,tmp_pdfs,tmp_txt)
         except:
             print(f'ERROR: File {pdfsNames[0]} unabled to download...')
+            delete_tmp_files(tmp_pdfs, tmp_txt)
             continue
         
         #Upload txt
