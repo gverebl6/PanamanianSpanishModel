@@ -1,4 +1,7 @@
 #!/bin/bash
+
+#This bash file is meant to be run in the gcloudshell
+
 # Params:
 NEW_FOLDER=$1 # Folder to download {Like: new_folder}
 BUCKET_NAME=$2 # Bucket to download or folder in bucket {gs://bucket}
