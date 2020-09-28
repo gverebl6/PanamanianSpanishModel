@@ -140,9 +140,10 @@ dmypy.json
 
 
 #Self made
-proy_cred.json
+cred_google.json
 textExtractor/test_DataInput/*
 textExtractor/test_DataNOTCleaned/*
 textExtractor/test_DataOutput/*
 
 textExtractor/test
+links.txt

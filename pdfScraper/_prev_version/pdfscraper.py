@@ -12,7 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 
 #IMPORT DEL CLOUD MANAGE
-#from CloudManager.cloudManager import StorageManager
+
+from cloudManager import StorageManager
 #from Logger.logger import create_logger
 
 
@@ -20,6 +21,7 @@ from selenium.common.exceptions import TimeoutException
 URL = sys.argv[1]
 ACTAS = sys.argv[2]
 PAGES = sys.argv[3]
+ACTION = sys.argv[4]
 
 class deprecated_Scraper():
 
@@ -29,14 +31,12 @@ class deprecated_Scraper():
         '''
         #self._logger = create_logger('pdfScraper-logger')
         self.PARSER = 'lxml'
-        self.__tmp_dir = '_prev_version/tmp'
-        #self.storage_manager = StorageManager('pdfs_tesis')
+        self.__tmp_dir = './tmp'
+        self._storage_manager = StorageManager('pdfs_tesis')
         
         if local:
             self.driver = self.__defineDriver(driver_path='./chromedriver.exe') 
-        else: 
-            sys.path.insert(0,'/usr/lib/chromium-browser/chromedriver')
-            self.driver = self.__defineDriver() 
+        
 
         
 
@@ -123,11 +123,11 @@ class deprecated_Scraper():
         once all are uploaded to the storage. 
         """
         for file in os.listdir(self.__tmp_dir):
-            os.remove(f'{self.__tmp_dir}\\{file}')
+            os.remove(f'{self.__tmp_dir}/{file}')
         
 
 
-    def extract(self, url, actas='pleno', pages=1, one_file=False):
+    def get_links(self, url, actas='pleno', pages=1, one_file=False, link_file=None):
         table_url = self.__getSoup(url).find('iframe').get('src')
         if actas=='pleno': 
             file_names = self.__extractActasPleno(table_url, pages)
@@ -140,6 +140,7 @@ class deprecated_Scraper():
         else:
             last = len(file_names)
 
+        links = []
 
         for file in file_names[:last]:
             #Uttilizamos el nombre del archivo para generar el url
@@ -151,38 +152,54 @@ class deprecated_Scraper():
             else:
                 url_pdf = f'https://www.asamblea.gob.pa/APPS/LEGISPAN/PDF_ACTAS/{decade}_ACTAS/{year}_ACTAS/{year}_ACTAS_COMISION/{year}_COMISION/{file}'
 
-            file = url_pdf.split('/')[-1]
-            tmp_file = f'{self.__tmp_dir}/{file}'
+            links.append(url_pdf)
+
+            
+        with open(link_file, 'w') as f:
+            for link in links:
+                f.write(f'{link}\n')
 
 
+
+    
+    def extract(self, link_file, tipo_acta):
+        with open(link_file, 'r') as file:
+            links = file.readlines()
+            links = [link.strip() for link in links]
+        
+        for link in links:
+            file = link.split('/')[-1] #File url
+            tmp_file = f'{self.__tmp_dir}/{file}' #tmp_file_path
+            storage_object = f'acta_{tipo_acta}_{file}' #File name in Storage
+            
+            print(f'Extracting {file} from {link}')
+            print(tmp_file)
             try:
-                
-                print(tmp_file)
-
-                storage_object = f'acta_{actas}_{file.lower()}'
-                print(storage_object)
-                
-                #raw_pdf = requests.get(url_pdf)
-                #file_path = f'{self.__tmp_dir}\\{file}'
-                
-                #with open(file_path, 'wb') as pdf:
-                    #pdf.write(raw_pdf.content)
-
-
-                #Codigo para subir en storage
-                #self.storage_manager.upload_object(file_path, f'Acta-{actas}-{year}-{file}')
-                #self._logger.info(f'File {file_path} extraction completed')
-                #timeouut de 10 min entre descargas de archivos.
-                #self.__deletePdfs()  
-                #time.sleep(30)  
+                raw_pdf = requests.get(link)
+                with open(tmp_file, 'wb') as pdf:
+                    pdf.write(raw_pdf.content)
             except:
                 print('No se pudo descargar el documento...')
-            
 
-        
+            self._storage_manager.upload_object(tmp_file, storage_object)
+            #self._logger.info(f'File {storage_object} extraction completed')
+            self.__deletePdfs()  
+            
+            
+                
+
+
+
 
 
 if __name__ == '__main__':
-    scraper = deprecated_Scraper(local=True)
-    scraper.extract(url=URL, actas=ACTAS, pages=PAGES)
-    scraper.driver.close()
+
+    if ACTION == 'get_files':
+        scraper = deprecated_Scraper(local=True)
+        scraper.get_links(url=URL, actas=ACTAS, pages=int(PAGES), link_file='./links.txt')
+        scraper.driver.close()
+    else:
+        scraper = deprecated_Scraper(local=False)
+        scraper.extract(link_file='./links.txt', tipo_acta=ACTAS)
+
+    
