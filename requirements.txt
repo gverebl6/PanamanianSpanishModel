@@ -1,11 +1,4 @@
-pip install --upgrade google-cloud-storage
-pip install beautifulsoup4
-pip install selenium
-
-#Selenium instalation
-!pip install selenium
-!apt-get update # to update ubuntu to correctly run apt install
-!apt install chromium-chromedriver
-!cp /usr/lib/chromium-browser/chromedriver /usr/bin
-
-sudo apt-get install python3-lxml
+beautifulsoup4
+requests
+lxml
+google-cloud-storage
