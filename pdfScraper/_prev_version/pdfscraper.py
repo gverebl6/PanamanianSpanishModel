@@ -178,6 +178,8 @@ class deprecated_Scraper():
                 raw_pdf = requests.get(link)
                 with open(tmp_file, 'wb') as pdf:
                     pdf.write(raw_pdf.content)
+            except KeyboardInterrupt:
+                break
             except:
                 print('No se pudo descargar el documento...')
                 continue
