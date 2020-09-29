@@ -180,6 +180,7 @@ class deprecated_Scraper():
                     pdf.write(raw_pdf.content)
             except:
                 print('No se pudo descargar el documento...')
+                continue
 
             self._storage_manager.upload_object(tmp_file, storage_object)
             #self._logger.info(f'File {storage_object} extraction completed')
