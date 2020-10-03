@@ -6,7 +6,7 @@ from Logger.logger import create_logger
 
 def get_new_docs():
     docs = pdf_storage.get_blobs()
-    return [doc for doc in docs if doc.metadata and doc.metadata['extracted'] == 'False']
+    return [doc for doc in docs if doc.metadata and doc.metadata['extracted'] == 'False'][::-1]
 
 def change_obj_extention(doc, extention='txt'):
     return f"{doc.split('.')[0]}.{extention}"
